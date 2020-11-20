@@ -1,5 +1,5 @@
 import requests 
-
+import json
 import secret
 
 
@@ -12,9 +12,9 @@ API_ROOT = 'https://api.opendota.com/api'
 # def find_matches_by_hero():
 
 def find_hero(heroname):
-  for hero in get_hero_list():
+  for hero in load_hero_list():
     if hero['localized_name'] == heroname:
-        return hero
+      return hero
   print("Didn't find the hero")
   return
 
@@ -35,11 +35,9 @@ def make_example_call():
     )
     print(response.json())
 
-
-def main():
-  heroname = input("Enter hero name: ")
-  print(find_hero(heroname))
-  print("ID = ", get_hero_id(heroname))
+def load_hero_list(): 
+  with open("hero_dict.json") as f: 
+    return json.loads(f.read())
 
 
 if __name__ == '__main__':
