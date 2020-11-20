@@ -14,3 +14,4 @@ The team of this project is:
 
 # Requirments 
     - IDK BRO TBD 
+    - Fix alexs compooooter plz 
