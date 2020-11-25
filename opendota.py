@@ -11,6 +11,31 @@ API_ROOT = "https://api.opendota.com/api"
 
 # def find_matches_by_hero():
 
+def make_query(hero1, hero2): 
+    query = 
+    f"""SELECT player_matches.{get_hero_id(hero1)} AS hero1,
+         player_matches1.{get_hero_id(hero2)} AS hero2,
+         player_matches.player_slot AS ps1,
+         player_matches1.player_slot AS ps2,
+         matches.match_id,
+         leagues.name leaguename
+    FROM player_matches
+    JOIN player_matches AS player_matches1
+    ON player_matches.match_id = player_matches1.match_id
+    JOIN matches
+    ON player_matches.match_id = matches.match_id
+    JOIN leagues using(leagueid)    
+    WHERE player_matches.hero_id = 4
+        AND player_matches1.hero_id = 3
+        AND matches.start_time >= extract(epoch
+    FROM timestamp '2020-10-23T06:53:44.537Z')
+        AND abs(player_matches.player_slot - player_matches1.player_slot) > 123
+    ORDER BY  matches.match_id NULLS LAST LIMIT 200"""
+
+
+    
+
+
 
 def find_hero(heroname):
     for hero in load_hero_list():
@@ -46,3 +71,6 @@ def load_hero_list():
 
 if __name__ == "__main__":
     main()
+
+
+
