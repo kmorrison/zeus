@@ -12,9 +12,8 @@ API_ROOT = "https://api.opendota.com/api"
 # def find_matches_by_hero():
 
 def make_query(hero1, hero2): 
-    query = 
-    f"""SELECT player_matches.{get_hero_id(hero1)} AS hero1,
-         player_matches1.{get_hero_id(hero2)} AS hero2,
+    query = f"""SELECT player_matches.hero_id AS hero1,
+         player_matches1.hero_id AS hero2,
          player_matches.player_slot AS ps1,
          player_matches1.player_slot AS ps2,
          matches.match_id,
@@ -25,16 +24,28 @@ def make_query(hero1, hero2):
     JOIN matches
     ON player_matches.match_id = matches.match_id
     JOIN leagues using(leagueid)    
-    WHERE player_matches.hero_id = 4
-        AND player_matches1.hero_id = 3
+    WHERE player_matches.hero_id = {get_hero_id(hero1)}
+        AND player_matches1.hero_id = {get_hero_id(hero2)}
         AND matches.start_time >= extract(epoch
     FROM timestamp '2020-10-23T06:53:44.537Z')
         AND abs(player_matches.player_slot - player_matches1.player_slot) > 123
     ORDER BY  matches.match_id NULLS LAST LIMIT 200"""
 
-
+    response = requests.get(
+        f"{API_ROOT}/explorer", params=dict(api_key=secret.OPENDOTA_API_KEY, sql = query)
+    )
+    return response.json()
     
+##returns list of pro match ids played between two opposing heroes
+def get_matches(hero1, hero2): 
+    query_response = make_query(hero1, hero2)
+    match_list = query_response['rows'] ##list of dictionaries for some reason
+    result = []
 
+    for match in match_list: 
+        result.append(match['match_id'])
+
+    return result
 
 
 def find_hero(heroname):
