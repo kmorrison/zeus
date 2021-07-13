@@ -1,6 +1,7 @@
 import opendota
 
-test_match_id = 6084764514
+comeback_match_id = 6084764514
+stomp_match_id = 6081301206
 MAX_GPM_ADV = 500
 
 HEROES = opendota.load_hero_list()
@@ -43,8 +44,12 @@ def prune_winmore_purchases(full_match_data, item_purchases, advantage_threshold
         for item_purchase in item_purchase_data['purchases']:
             item_purchase_time = item_purchase['time']
             # Advance current time to just before the item is purchased
-            while item_purchase_time > times[current_time_idx + 1]:
-                current_time_idx += 1
+            try:
+                while item_purchase_time > times[current_time_idx + 1]:
+                    current_time_idx += 1
+            except IndexError:
+                # Item was purchased in last minute of game
+                assert times[current_time_idx] == times[-1]
             gold_advantage_at_that_time = gold_adv_per_min[current_time_idx]
             if not item_purchase_data['is_radiant']:
                 gold_advantage_at_that_time *= -1
@@ -78,5 +83,5 @@ def parse_match(full_match_data):
     revised_item_purchases = prune_winmore_purchases(full_match_data, item_purchases)
 
 if __name__ == "__main__":
-    parse_match(opendota.get_match_by_id(test_match_id))
+    parse_match(opendota.get_match_by_id(stomp_match_id))
 
