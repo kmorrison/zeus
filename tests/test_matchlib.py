@@ -63,22 +63,22 @@ def test_prune_winmore_stomp(stomp_match_data):
         for player in stomp_match_data['players']
     ]
 
-    immortal_player_item_purchases = item_purchase_data[-2]
-    original_purchase_data = immortal_player_item_purchases['purchases']
-    assert immortal_player_item_purchases['hero']['localized_name'] == 'Storm Spirit'
+    winmore_player_item_purchases = item_purchase_data[-2]
+    original_purchase_data = winmore_player_item_purchases['purchases']
+    assert winmore_player_item_purchases['hero']['localized_name'] == 'Storm Spirit'
     pruned_item_purchases = matchlib.prune_winmore_purchases(
         stomp_match_data, 
-        [immortal_player_item_purchases],
+        [winmore_player_item_purchases],
         advantage_threshold=500,
     )
     assert len(pruned_item_purchases[0]['purchases']) < len(original_purchase_data)
 
-    immortal_player_item_purchases = item_purchase_data[1]
-    original_purchase_data = immortal_player_item_purchases['purchases']
-    assert immortal_player_item_purchases['hero']['localized_name'] == 'Brewmaster'
+    losemore_player_item_purchases = item_purchase_data[1]
+    original_purchase_data = losemore_player_item_purchases['purchases']
+    assert losemore_player_item_purchases['hero']['localized_name'] == 'Brewmaster'
     pruned_item_purchases = matchlib.prune_winmore_purchases(
         stomp_match_data, 
-        [immortal_player_item_purchases],
+        [losemore_player_item_purchases],
         advantage_threshold=500,
     )
     assert len(pruned_item_purchases[0]['purchases']) < len(original_purchase_data)
