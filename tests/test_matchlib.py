@@ -27,6 +27,12 @@ def test_extract_item_purchases(sample_match_data):
     first_player_item_purchases = item_purchase_data[0]
     assert first_player_item_purchases['hero']['localized_name'] == 'Windranger'
     assert first_player_item_purchases['is_radiant']
+    assert first_player_item_purchases['player_won']
+
+    last_player_item_purchases = item_purchase_data[-1]
+    assert last_player_item_purchases['hero']['localized_name'] == 'Invoker'
+    assert not last_player_item_purchases['is_radiant']
+    assert not last_player_item_purchases['player_won']
 
 
 def test_prune_winmore(sample_match_data):
@@ -35,14 +41,12 @@ def test_prune_winmore(sample_match_data):
         for player in sample_match_data['players']
     ]
 
-    # Axe gets pretty far ahead this game and some of his purchases are winmore,
-    # prune them out
-    immortal_player_item_purchases = item_purchase_data[-2]
+    immortal_player_item_purchases = item_purchase_data[0]
     original_purchase_data = immortal_player_item_purchases['purchases']
-    assert immortal_player_item_purchases['hero']['localized_name'] == 'Axe'
+    assert immortal_player_item_purchases['hero']['localized_name'] == 'Windranger'
     pruned_item_purchases = matchlib.prune_winmore_purchases(
         sample_match_data, 
         [immortal_player_item_purchases],
-        advantage_threshold=200,
+        advantage_threshold=20,
     )
     assert len(pruned_item_purchases[0]['purchases']) < len(original_purchase_data)

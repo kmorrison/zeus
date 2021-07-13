@@ -1,7 +1,7 @@
 import opendota
 
 test_match_id = 6084764514
-MAX_GPM_ADV = 300
+MAX_GPM_ADV = 500
 
 HEROES = opendota.load_hero_list()
 
@@ -9,11 +9,16 @@ def extract_item_purchases_from_player_data(player_data):
     hero = opendota.find_hero_by_id(player_data['hero_id'])
 
     purchases = player_data['purchase_log']
+    
+    is_radiant = bool(player_data['player_slot'] < 127)
+    radiant_win = bool(player_data['radiant_win'])
+    other_team_won = bool(is_radiant ^ radiant_win)
 
     return dict(
         hero=hero, 
         purchases=purchases, 
-        is_radiant=bool(player_data['player_slot'] < 127),
+        is_radiant=is_radiant,
+        player_won=not(other_team_won)
     )
 
 
@@ -45,10 +50,23 @@ def prune_winmore_purchases(full_match_data, item_purchases, advantage_threshold
                 gold_advantage_at_that_time *= -1
             # TODO: Maybe also prune by benchmark key
             # TODO: Make pruner a strategy somehow
-            if gold_advantage_at_that_time <= advantage_threshold or times[current_time_idx] < 600:
-                pruned_purchase_log.append(item_purchase)
-            else:
-                print(f"Excluding {item_purchase} because of winmore")
+            if times[current_time_idx] > 600:
+                if bool(
+                    gold_advantage_at_that_time >= advantage_threshold 
+                    and item_purchase_data['player_won']
+                ):
+                    print(
+                        f"Excluding {item_purchase} for {item_purchase_data['hero']['localized_name']} because of winmore"
+                    )
+                    continue
+                if bool(
+                    gold_advantage_at_that_time < -advantage_threshold
+                    and not item_purchase_data['player_won']
+                ):
+                    print(f"Excluding {item_purchase} for {item_purchase_data['hero']['localized_name']} because of losemore")
+                    continue
+
+            pruned_purchase_log.append(item_purchase)
         item_purchase_data['purchases'] = pruned_purchase_log
     return item_purchases
 
