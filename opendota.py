@@ -52,6 +52,18 @@ def get_item_table():
     return response.json()
 
 
+def query_explorer(query):
+    response = requests.get(
+        f"{API_ROOT}/explorer",
+        params=dict(
+            api_key=secret.OPENDOTA_API_KEY,
+            sql=query,
+        ),
+    )
+    return response.json()
+
+
+
 def make_example_call():
     response = requests.get(
         f"{API_ROOT}/matches/5705824607",
