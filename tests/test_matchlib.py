@@ -57,6 +57,7 @@ def test_prune_winmore(comeback_match_data):
     )
     assert len(pruned_item_purchases[0]['purchases']) < len(original_purchase_data)
 
+
 def test_prune_winmore_stomp(stomp_match_data):
     item_purchase_data = [
         matchlib.extract_item_purchases_from_player_data(player) 

@@ -19,24 +19,20 @@ def extract_item_purchases_from_player_data(player_data):
         hero=hero, 
         purchases=purchases, 
         is_radiant=is_radiant,
-        player_won=not(other_team_won)
+        player_won=not(other_team_won),
     )
 
 
 def prune_winmore_purchases(full_match_data, item_purchases, advantage_threshold=MAX_GPM_ADV):
-    radiant_gold_adv = full_match_data['radiant_gold_adv']
-
+    # Pretty sure this is just [i * 60 for i in range(<duration>)]
     times = full_match_data['players'][0]['times']
 
-    cpy_radiant_gold_adv = list(radiant_gold_adv)
-
     gold_adv_per_min = []
-    for i, radiant_adv in enumerate(cpy_radiant_gold_adv):
+    for i, radiant_adv in enumerate(full_match_data['radiant_gold_adv']):
         if i == 0:
             gold_adv_per_min.append(radiant_adv / 1)
         else:
             gold_adv_per_min.append(radiant_adv / i)
-    print(gold_adv_per_min)
 
     for item_purchase_data in item_purchases:
         pruned_purchase_log = []
@@ -79,7 +75,10 @@ def prune_winmore_purchases(full_match_data, item_purchases, advantage_threshold
 def parse_match(full_match_data):
     players = full_match_data['players']
 
-    item_purchases = [extract_item_purchases_from_player_data(player) for player in players]
+    item_purchases = [
+        extract_item_purchases_from_player_data(player) 
+        for player in players
+    ]
     revised_item_purchases = prune_winmore_purchases(full_match_data, item_purchases)
 
 if __name__ == "__main__":
