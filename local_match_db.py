@@ -98,6 +98,11 @@ if __name__ == '__main__':
     #     start_time=match['start_time'],
     #     matches_per_file=200,
     # )
+    extend_existing_match_db(
+        'moneydb',
+        num_matches=2000,
+        matches_per_file=500,
+    )
     start_times = [m['start_time'] for m in all_matches_from_db('moneydb')]
     parsed_matches = [
         m
@@ -109,9 +114,4 @@ if __name__ == '__main__':
         dateparser.parse(str(sorted_parsed_matches[0]['start_time'])), 
         dateparser.parse(str(sorted_parsed_matches[-1]['start_time'])), 
     )
-    from pprint import pprint
-    pprint([
-        f"https://www.opendota.com/matches/{m['match_id']}/overview" 
-        for m in sorted_parsed_matches
-    ])
-    print([m['match_id'] for m in sorted_parsed_matches][:50])
+    print(f"Num fully parsed matches: {sum([matchlib.is_fully_parsed(m) for m in sorted_parsed_matches])}")
