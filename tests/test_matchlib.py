@@ -18,12 +18,6 @@ def stomp_match_data():
         return json.loads(f.read())
 
 
-def test_get_items():
-    all_items = opendota.get_item_table()
-    assert all_items['blink']
-    assert all_items['blades_of_attack']
-
-
 def test_extract_item_purchases(comeback_match_data):
     item_purchase_data = [
         matchlib.extract_item_purchases_from_player_data(player) 
@@ -105,3 +99,14 @@ def test_match_iterator(stomp_match_data):
         bool(row['start_time'] >= stomp_match_data['start_time']) 
         for row in match_rows
     ])
+
+@pytest.mark.apitest
+def test_get_items():
+    # WARNING: This hits the opendota API and so every run costs money :)
+    if not os.environ.get('RUN_MONEY_TESTS'):
+        return
+
+    all_items = opendota.get_item_table()
+    assert all_items['blink']
+    assert all_items['blades_of_attack']
+
