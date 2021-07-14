@@ -105,17 +105,20 @@ LIMIT $query_limit
 
 def iterate_matches(date_string, limit=200, page_size=DEFAULT_QUERY_PAGE_SIZE):
     start = int(dateparser.parse(str(date_string)).timestamp())
-    query = MATCHFINDER_QUERY.substitute(
-        start_time=start,
-        query_limit=page_size,
-    )
-    result = opendota.query_explorer(query)
     count = 0
-    for row in result['rows']:
-        yield row
-        count += 1
-        if count >= limit:
-            return
+    while count < limit:
+        query = MATCHFINDER_QUERY.substitute(
+            start_time=start,
+            query_limit=page_size,
+        )
+        result = opendota.query_explorer(query)
+        for row in result['rows']:
+            yield row
+            count += 1
+            if count >= limit:
+                return
+        time_of_last_match_in_query = result['rows'][-1]['start_time']
+        start = int(dateparser.parse(str(time_of_last_match_in_query)).timestamp())
         
 
 

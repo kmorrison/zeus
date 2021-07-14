@@ -1,4 +1,5 @@
 import json
+import os
 
 import pytest
 
@@ -83,3 +84,24 @@ def test_prune_winmore_stomp(stomp_match_data):
         advantage_threshold=500,
     )
     assert len(pruned_item_purchases[0]['purchases']) < len(original_purchase_data)
+
+
+@pytest.mark.apitest
+def test_match_iterator(stomp_match_data):
+    # WARNING: This hits the opendota API and so every run costs money :)
+    if not os.environ.get('RUN_MONEY_TESTS'):
+        return
+
+    print('Running expensive test')
+    match_rows = list(matchlib.iterate_matches(
+        stomp_match_data['start_time'],
+        limit=20,
+        page_size=10,
+    ))
+
+    assert len(match_rows) == 20
+    assert all([bool('match_id' in row) for row in match_rows])
+    assert all([
+        bool(row['start_time'] >= stomp_match_data['start_time']) 
+        for row in match_rows
+    ])
