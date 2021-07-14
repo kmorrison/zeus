@@ -7,7 +7,7 @@ import opendota
 comeback_match_id = 6084764514
 stomp_match_id = 6081301206
 MAX_GPM_ADV = 500
-DEFAULT_QUERY_PAGE_SIZE = 50
+DEFAULT_QUERY_PAGE_SIZE = 100
 
 HEROES = opendota.load_hero_list()
 
@@ -111,6 +111,7 @@ def iterate_matches(date_string, limit=200, page_size=DEFAULT_QUERY_PAGE_SIZE):
             start_time=start,
             query_limit=page_size,
         )
+        # TODO: Handle rate limit
         result = opendota.query_explorer(query)
         for row in result['rows']:
             yield row
