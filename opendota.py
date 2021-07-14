@@ -63,6 +63,18 @@ def query_explorer(query):
     return response.json()
 
 
+def parsed_matches(last_match_id=None):
+    params = dict(
+        api_key=secret.OPENDOTA_API_KEY,
+    )
+    if last_match_id is not None:
+        params['less_than_match_id'] = last_match_id
+    response = requests.get(
+        f"{API_ROOT}/parsedMatches",
+        params=params,
+    )
+    return response.json()
+
 
 def make_example_call():
     response = requests.get(
@@ -75,3 +87,11 @@ def make_example_call():
 def load_hero_list():
     with open("hero_dict.json") as f:
         return json.loads(f.read())
+
+
+if __name__ == '__main__':
+    matches = parsed_matches()
+    print(matches)
+    sorted_matches = sorted(matches, key=lambda x: x['match_id'])
+    print(sorted_matches)
+    print(len(matches))

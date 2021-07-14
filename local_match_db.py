@@ -1,7 +1,9 @@
 import gzip
 import json
 import os
+import time
 
+import dateparser
 import more_itertools
 
 import matchlib
@@ -32,6 +34,7 @@ def populate_db(name, num_matches=10000, start_time=None, matches_per_file=MATCH
             f.write(json.dumps(matches_to_save).encode())
             print(f"Wrote chunk, size {len(matches_to_save)}, total {total_matches}")
         matches_to_save = []
+        time.sleep(1)
         
     print(f"Done, wrote total {total_matches}")
     
@@ -49,11 +52,25 @@ def all_matches_from_db(name):
 if __name__ == '__main__':
     match = opendota.get_match_by_id(matchlib.stomp_match_id)
     # populate_db(
-    #     'testdb',
-    #     num_matches=100,
+    #     'moneydb',
+    #     num_matches=1000,
     #     start_time=match['start_time'],
-    #     matches_per_file=20,
+    #     matches_per_file=200,
     # )
-    start_times = [m['start_time'] for m in all_matches_from_db('testdb')]
-    print(start_times)
-    assert start_times == sorted(start_times)
+    start_times = [m['start_time'] for m in all_matches_from_db('moneydb')]
+    parsed_matches = [
+        m
+        for m in all_matches_from_db('moneydb')
+        if bool(m['players'][0].get('purchase_log', None))
+    ]
+    sorted_parsed_matches = sorted(parsed_matches, key=lambda x: x['start_time'])
+    print(
+        dateparser.parse(str(sorted_parsed_matches[0]['start_time'])), 
+        dateparser.parse(str(sorted_parsed_matches[-1]['start_time'])), 
+    )
+    from pprint import pprint
+    pprint([
+        f"https://www.opendota.com/matches/{m['match_id']}/overview" 
+        for m in sorted_parsed_matches
+    ])
+    print([m['match_id'] for m in sorted_parsed_matches][:50])
