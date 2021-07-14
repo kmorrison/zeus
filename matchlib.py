@@ -127,7 +127,6 @@ def is_fully_parsed(match):
     return bool(match['players'][0].get('purchase_log', None))
         
 
-
 if __name__ == "__main__":
     match = opendota.get_match_by_id(stomp_match_id)
     print(list(iterate_matches(match['start_time'])))

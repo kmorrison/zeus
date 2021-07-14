@@ -1,12 +1,15 @@
+import argparse
 import gzip
 import json
 import os
 import re
 import time
 
+import cloudant
 import dateparser
 import more_itertools
 
+import couchdb
 import matchlib
 import opendota
 
@@ -91,27 +94,64 @@ def all_matches_from_db(name):
             yield match
 
 if __name__ == '__main__':
-    match = opendota.get_match_by_id(matchlib.stomp_match_id)
-    # populate_db(
-    #     'moneydb',
-    #     num_matches=1000,
-    #     start_time=match['start_time'],
-    #     matches_per_file=200,
-    # )
-    extend_existing_match_db(
-        'moneydb',
-        num_matches=2000,
-        matches_per_file=500,
-    )
-    start_times = [m['start_time'] for m in all_matches_from_db('moneydb')]
-    parsed_matches = [
-        m
-        for m in all_matches_from_db('moneydb')
-        if bool(m['players'][0].get('purchase_log', None))
-    ]
-    sorted_parsed_matches = sorted(parsed_matches, key=lambda x: x['start_time'])
-    print(
-        dateparser.parse(str(sorted_parsed_matches[0]['start_time'])), 
-        dateparser.parse(str(sorted_parsed_matches[-1]['start_time'])), 
-    )
-    print(f"Num fully parsed matches: {sum([matchlib.is_fully_parsed(m) for m in sorted_parsed_matches])}")
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--num-matches', type=int, default=1000)
+    parser.add_argument('--matches-per-file', type=int, default=200)
+    parser.add_argument('--dbname', type=str, default="moneydb")
+
+    parser.add_argument('--populate-local', action="store_true")
+    parser.add_argument('--extend-local', action="store_true")
+    parser.add_argument('--display-stats-local', action="store_true")
+    parser.add_argument('--migrate-local', action="store_true")
+
+    parser.add_argument('--migrate-dbname', type=str, default=couchdb.MATCHES_DBNAME)
+    parser.add_argument('--display-stats', action="store_true")
+
+    args = parser.parse_args()
+
+    with open("tests/fixtures/stomp_match.json") as f:
+        match = json.loads(f.read())
+
+    if args.populate_local:
+        populate_db(
+            args.dbname,
+            num_matches=args.num_matches,
+            start_time=match['start_time'],
+            matches_per_file=args.matches_per_file,
+        )
+
+    if args.extend_local:
+        extend_existing_match_db(
+            args.dbname,
+            num_matches=args.num_matches,
+            matches_per_file=args.matches_per_file,
+        )
+
+    if args.display_stats_local:
+        start_times = [m['start_time'] for m in all_matches_from_db(args.dbname)]
+        parsed_matches = [
+            m
+            for m in all_matches_from_db(args.dbname)
+            if matchlib.is_fully_parsed(m)
+        ]
+        sorted_parsed_matches = sorted(parsed_matches, key=lambda x: x['start_time'])
+        print(
+            dateparser.parse(str(sorted_parsed_matches[0]['start_time'])),
+            dateparser.parse(str(sorted_parsed_matches[-1]['start_time'])),
+        )
+        print(f"Num fully parsed matches: {len(parsed_matches)}")
+
+    if args.migrate_local:
+        matches_db = couchdb.get_matches_db(args.migrate_dbname)
+
+        for match in all_matches_from_db(args.dbname):
+            if matchlib.is_fully_parsed(match):
+                couchdb.store_match_to_db(matches_db, match)
+
+    if args.display_stats:
+        matches_db = couchdb.get_matches_db(args.migrate_dbname)
+        all_docs = matches_db.all_docs()
+
+        print(f"Num fully parsed matches: {all_docs['total_rows']}")
+
+        print(f"Last match start_time {couchdb.get_last_match_by_start_time(matches_db)['start_time']}")

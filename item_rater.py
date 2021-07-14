@@ -1,7 +1,10 @@
+import argparse
+
 import tabulate
+
+import local_match_db
 import matchlib
 import opendota
-import local_match_db
 
 def calculate_item_winrates(item_info):
     heroes = {}
@@ -74,7 +77,6 @@ def normalize_item_winrates_by_cost_and_hero_winrate(hero_table, item_info):
     return hero_table['games'], hero_winrate, marginal_winrate, marginal_cost_winrate
 
 if __name__ == '__main__':
-    import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('hero', type=str)
     args = parser.parse_args()
