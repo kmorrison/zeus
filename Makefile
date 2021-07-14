@@ -1,11 +1,11 @@
 test:
-	pytest
+	python -m pytest
 
 test-verbose:
-	pytest -s
+	python -m pytest -s
 
 test-full:
-	RUN_MONEY_TESTS=true pytest -s
+	RUN_MONEY_TESTS=true python -m pytest -s
 
 test-integration:
-	RUN_MONEY_TESTS=true pytest -s -m apitest
+	RUN_MONEY_TESTS=true python -m pytest -s -m apitest
