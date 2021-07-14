@@ -8,7 +8,7 @@ API_ROOT = "https://api.opendota.com/api"
 # get/find matches
 
 def find_hero(heroname):
-    for hero in load_hero_list():
+    for hero in load_hero_list().values():
         if hero["localized_name"] == heroname:
             return hero
     print("Didn't find the hero")
@@ -16,11 +16,7 @@ def find_hero(heroname):
 
 
 def find_hero_by_id(hero_id):
-    for hero in load_hero_list():
-        if hero["id"] == hero_id:
-            return hero
-    print("Didn't find the hero")
-    return
+    return load_hero_list().get(str(hero_id))
 
 
 def get_hero_id(heroname):
@@ -45,6 +41,16 @@ def get_match_by_id(match_id):
 def get_item_table():
     response = requests.get(
         f"{API_ROOT}/constants/items",
+        params=dict(
+            api_key=secret.OPENDOTA_API_KEY,
+        ),
+    )
+    return response.json()
+
+
+def get_heroes_table():
+    response = requests.get(
+        f"{API_ROOT}/constants/heroes",
         params=dict(
             api_key=secret.OPENDOTA_API_KEY,
         ),
@@ -90,8 +96,4 @@ def load_hero_list():
 
 
 if __name__ == '__main__':
-    matches = parsed_matches()
-    print(matches)
-    sorted_matches = sorted(matches, key=lambda x: x['match_id'])
-    print(sorted_matches)
-    print(len(matches))
+    pass

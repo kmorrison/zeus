@@ -61,15 +61,15 @@ def prune_winmore_purchases(full_match_data, item_purchases, advantage_threshold
                     gold_advantage_at_that_time >= advantage_threshold 
                     and item_purchase_data['player_won']
                 ):
-                    print(
-                        f"Excluding {item_purchase} for {item_purchase_data['hero']['localized_name']} because of winmore"
-                    )
+                    # print(
+                    #     f"Excluding {item_purchase} for {item_purchase_data['hero']['localized_name']} because of winmore"
+                    # )
                     continue
                 if bool(
                     gold_advantage_at_that_time < -advantage_threshold
                     and not item_purchase_data['player_won']
                 ):
-                    print(f"Excluding {item_purchase} for {item_purchase_data['hero']['localized_name']} because of losemore")
+                    #print(f"Excluding {item_purchase} for {item_purchase_data['hero']['localized_name']} because of losemore")
                     continue
 
             pruned_purchase_log.append(item_purchase)
@@ -85,6 +85,7 @@ def parse_match(full_match_data):
         for player in players
     ]
     revised_item_purchases = prune_winmore_purchases(full_match_data, item_purchases)
+    return revised_item_purchases
 
 MATCHFINDER_QUERY = Template("""
 SELECT
@@ -120,6 +121,10 @@ def iterate_matches(date_string, limit=200, page_size=DEFAULT_QUERY_PAGE_SIZE):
                 return
         time_of_last_match_in_query = result['rows'][-1]['start_time']
         start = int(dateparser.parse(str(time_of_last_match_in_query)).timestamp())
+
+
+def is_fully_parsed(match):
+    return bool(match['players'][0].get('purchase_log', None))
         
 
 
