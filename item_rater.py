@@ -57,7 +57,7 @@ def normalize_item_winrates_by_cost_and_hero_winrate(hero_table, item_info=None)
 if __name__ == '__main__':
     item_winrates = calculate_item_winrates()
     item_info = opendota.get_item_table()
-    a, b = normalize_item_winrates_by_cost_and_hero_winrate(item_winrates['Winter Wyvern'], item_info)
+    a, b = normalize_item_winrates_by_cost_and_hero_winrate(item_winrates['Phantom Lancer'], item_info)
     from pprint import pprint
     pprint(a)
     pprint(b)
