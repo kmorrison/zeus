@@ -27,4 +27,4 @@ jobs:
         touch secret.py
     - name: Test with pytest
       run: |
-        pytest
+        make test
