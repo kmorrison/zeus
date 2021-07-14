@@ -4,7 +4,6 @@ herolist = opendota.get_hero_list()
 
 i = 1
 
-
 def find_hero(heroname):
     i = 1
     for hero in herolist:
@@ -14,6 +13,3 @@ def find_hero(heroname):
 
     print("Didn't find the hero")
     return
-
-
-print(find_hero("Juggernaut"))

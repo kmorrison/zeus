@@ -1,6 +1,4 @@
-import pytest
 import opendota
-
 
 def test_find_juggernaut():
     juggernaut = opendota.find_hero("Juggernaut")
