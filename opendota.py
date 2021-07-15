@@ -7,12 +7,14 @@ API_ROOT = "https://api.opendota.com/api"
 
 # get/find matches
 
+
 def request_parse(match_id):
     response = requests.post(
         f"{API_ROOT}/request/{match_id}",
         params=dict(api_key=secret.OPENDOTA_API_KEY),
     )
     return response.json()
+
 
 def find_hero(heroname):
     for hero in load_hero_list().values():
@@ -81,7 +83,7 @@ def parsed_matches(last_match_id=None):
         api_key=secret.OPENDOTA_API_KEY,
     )
     if last_match_id is not None:
-        params['less_than_match_id'] = last_match_id
+        params["less_than_match_id"] = last_match_id
     response = requests.get(
         f"{API_ROOT}/parsedMatches",
         params=params,
@@ -102,5 +104,5 @@ def load_hero_list():
         return json.loads(f.read())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pass

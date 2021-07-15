@@ -1,5 +1,6 @@
 import opendota
 
+
 def test_find_juggernaut():
     juggernaut = opendota.find_hero("Juggernaut")
     assert juggernaut["localized_name"] == "Juggernaut"
