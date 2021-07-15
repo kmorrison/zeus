@@ -7,6 +7,13 @@ API_ROOT = "https://api.opendota.com/api"
 
 # get/find matches
 
+def request_parse(match_id):
+    response = requests.post(
+        f"{API_ROOT}/request/{match_id}",
+        params=dict(api_key=secret.OPENDOTA_API_KEY),
+    )
+    return response.json()
+
 def find_hero(heroname):
     for hero in load_hero_list().values():
         if hero["localized_name"] == heroname:

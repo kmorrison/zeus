@@ -22,12 +22,25 @@ def get_client() -> cloudant.Cloudant:
         connect=True,
     )
 
-def get_matches_db(dbname=MATCHES_DBNAME) -> cloudant.database.CloudantDatabase:
+def get_matches_db(dbname=MATCHES_DBNAME) -> cloudant.database.CouchDatabase:
     client = get_client()
     return _ensure_db(client, dbname)
 
 
-def store_match_to_db(db: cloudant.database.CloudantDatabase, match: dict):
+def match_exists_in_db(db, match_id):
+    return str(match_id) in db
+
+
+def get_all_parsed_matches_more_recent_than(db: cloudant.database.CouchDatabase, start_time):
+    query = db.get_query_result(
+        selector={'start_time': {'$gt': start_time}},
+        sort=['start_time'],
+    )
+    # This is a paging query so just return it whole instead of loading it
+    return query
+
+
+def store_match_to_db(db: cloudant.database.CouchDatabase, match: dict):
     match['_id'] = str(match['match_id'])
     document = db.create_document(match)
     assert document.exists()
