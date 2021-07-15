@@ -28,7 +28,6 @@ def make_queue_payload(match, job_id):
 
 def is_queue_empty(r):
     payload = r.llen(QUEUE_NAME)
-    print(payload)
     return payload == 0
 
 

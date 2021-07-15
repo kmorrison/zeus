@@ -27,6 +27,10 @@ def get_matches_db(dbname=MATCHES_DBNAME) -> cloudant.database.CloudantDatabase:
     return _ensure_db(client, dbname)
 
 
+def match_exists_in_db(db, match_id):
+    return str(match_id) in db
+
+
 def store_match_to_db(db: cloudant.database.CloudantDatabase, match: dict):
     match['_id'] = str(match['match_id'])
     document = db.create_document(match)
