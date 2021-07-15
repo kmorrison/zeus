@@ -82,7 +82,6 @@ def extend_existing_match_db(name, num_matches=10000, matches_per_file=MATCHES_P
         start_idx=highwater_file_number + 1,
     )
     
-
 def all_matches_from_db(name):
     dirlist = [fname for fname in os.listdir(DB_DIR) if fname.startswith(name)]
     dirlist = sorted(dirlist, key=lambda x: _extract_filenumber(x, name))
@@ -92,6 +91,24 @@ def all_matches_from_db(name):
             matches = json.loads(f.read().decode())
         for match in matches:
             yield match
+
+def get_all_parsed_matches():
+    # TODO: test for parsedness
+    parsed_matches = [
+        m
+        for m in all_matches_from_db(args.dbname)
+        if matchlib.is_fully_parsed(m)
+    ]
+    return parsed_matches
+
+def get_all_unparsed_matches():
+    # TODO: test for unparsedness
+    unparsed_matches = [
+        m
+        for m in all_matches_from_db(args.dbname)
+        if not matchlib.is_fully_parsed(m)
+    ]
+    return unparsed_matches
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
