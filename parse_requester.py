@@ -85,4 +85,4 @@ if __name__ == '__main__':
         ]
         matches_to_parse = actually_unparsed_matches[:args.max_matches_to_queue]
 
-        #request_parsing_for_unparsed_matches(matches_to_parse)
+        request_parsing_for_unparsed_matches(matches_to_parse)
