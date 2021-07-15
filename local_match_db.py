@@ -92,20 +92,20 @@ def all_matches_from_db(name):
         for match in matches:
             yield match
 
-def get_all_parsed_matches():
+def get_all_parsed_matches(dbname):
     # TODO: test for parsedness
     parsed_matches = [
         m
-        for m in all_matches_from_db(args.dbname)
+        for m in all_matches_from_db(dbname)
         if matchlib.is_fully_parsed(m)
     ]
     return parsed_matches
 
-def get_all_unparsed_matches():
+def get_all_unparsed_matches(dbname):
     # TODO: test for unparsedness
     unparsed_matches = [
         m
-        for m in all_matches_from_db(args.dbname)
+        for m in all_matches_from_db(dbname)
         if not matchlib.is_fully_parsed(m)
     ]
     return unparsed_matches

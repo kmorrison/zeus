@@ -23,3 +23,7 @@ initcouch: couch
 
 runcouch:
 	docker start localcouch
+
+redis:
+	docker pull redis
+	docker run --name zeus-redis -p 6379:6379 -d redis
