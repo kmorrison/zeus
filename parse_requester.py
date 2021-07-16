@@ -10,23 +10,29 @@ import opendota
 import redis_queue
 
 
-def request_parse_for_match(match, redis_client):
+def request_parse_for_match(match, redis_client, delay=60):
     match_id = match["match_id"]
     print(f"Queueing {match_id} for parsing")
     job_id = opendota.request_parse(match_id)["job"]["jobId"]
-    redis_queue.push_unparsed_match_to_queue(redis_client, match, job_id)
+    redis_queue.push_unparsed_match_to_queue(
+        redis_client,
+        match,
+        job_id,
+        delay=delay,
+    )
 
 
-def request_parsing_for_unparsed_matches(unparsed_matches):
+def request_parsing_for_unparsed_matches(unparsed_matches, delay=60):
     redis_client = redis_queue.make_redis_client()
     for match in unparsed_matches:
-        request_parse_for_match(match, redis_client)
+        request_parse_for_match(match, redis_client, delay=delay)
 
 
 def process_unparsed_match_queue():
     redis_client = redis_queue.make_redis_client()
     empty_count = 0
     while True:
+        redis_queue.enqueue_delayed(redis_client)
         match_payload = redis_queue.pop_match_json_from_queue(redis_client)
         if match_payload is None:
             print("Sleeping because pulled nothing")
@@ -84,4 +90,7 @@ if __name__ == "__main__":
         ]
         matches_to_parse = actually_unparsed_matches[: args.max_matches_to_queue]
 
-        request_parsing_for_unparsed_matches(matches_to_parse)
+        request_parsing_for_unparsed_matches(
+            matches_to_parse,
+            delay=60,  # Seconds
+        )
