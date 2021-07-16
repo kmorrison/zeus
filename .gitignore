@@ -3,3 +3,4 @@ secret.py
 .idea/*
 *.DS_Store
 localmatches/
+.vscode/
