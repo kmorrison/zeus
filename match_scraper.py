@@ -1,4 +1,5 @@
 import argparse
+import datetime
 import pprint
 
 import dateparser
@@ -17,6 +18,7 @@ def populate_matches_from_start_time(start_time, num_matches=1000):
         fully_parsed_stored=0,
         parse_requested=0,
         already_stored=0,
+        highwater_mark=datetime.datetime.fromtimestamp(start_time),
     )
     for match_info in matchlib.iterate_matches(start_time, limit=num_matches):
         match_data = opendota.get_match_by_id(match_info["match_id"])
@@ -25,6 +27,10 @@ def populate_matches_from_start_time(start_time, num_matches=1000):
         if str(match_data["match_id"]) in matches_db:
             stats['already_stored'] += 1
             continue
+
+        stats["highwater_mark"] = datetime.datetime.fromtimestamp(
+            match_data["start_time"]
+        )
 
         if matchlib.is_fully_parsed(match_data):
             couchdb.store_match_to_db(matches_db, match_data)
