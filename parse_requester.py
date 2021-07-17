@@ -30,18 +30,15 @@ def request_parsing_for_unparsed_matches(unparsed_matches, delay=60):
 
 def process_unparsed_match_queue():
     redis_client = redis_queue.make_redis_client()
-    empty_count = 0
     while True:
         redis_queue.enqueue_delayed(redis_client)
         match_payload = redis_queue.pop_match_json_from_queue(redis_client)
         if match_payload is None:
             print("Sleeping because pulled nothing")
             time.sleep(10)
-            empty_count += 1
             continue
 
         print(match_payload)
-        empty_count = 0
 
         if datetime.datetime.now() - datetime.datetime.fromtimestamp(
             match_payload["last_checked_time"]
@@ -59,9 +56,6 @@ def process_unparsed_match_queue():
             if match_payload["num_retries"] > 4:
                 continue
             redis_queue.push_payload_for_retry(redis_client, match_payload)
-
-        if empty_count > 10:
-            break
 
 
 if __name__ == "__main__":
