@@ -1,0 +1,9 @@
+{
+    "index": {
+       "fields": [
+          "players.[].hero_id"
+       ]
+    },
+    "name": "players_array_hero_idx",
+    "type": "json"
+ }

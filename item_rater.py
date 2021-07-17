@@ -3,17 +3,18 @@ import argparse
 import tabulate
 
 import couchdb
-import local_match_db
 import matchlib
 import opendota
 
 
-def calculate_item_winrates(item_info, start_time):
+def calculate_item_winrates(item_info, start_time, hero_name=None):
     heroes = {}
 
     db = couchdb.get_matches_db()
 
-    for match in couchdb.get_all_parsed_matches_more_recent_than(db, start_time):
+    for match in couchdb.get_all_matches_with_hero_after_start_time(
+        db, start_time, hero_name=hero_name
+    ):
         if not matchlib.is_fully_parsed(match):
             continue
         filtered_item_purchases = matchlib.parse_match(match)
@@ -93,12 +94,14 @@ def normalize_item_winrates_by_cost_and_hero_winrate(hero_table, item_info):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--hero", type=str)
+    parser.add_argument("--hero", type=str, default="")
     parser.add_argument("--start-time", type=int, default=0)
     args = parser.parse_args()
 
     item_info = opendota.get_item_table()
-    item_winrates = calculate_item_winrates(item_info, args.start_time)
+    item_winrates = calculate_item_winrates(
+        item_info, args.start_time, hero_name=args.hero
+    )
     hero_winrates = [
         (hero_name, iw["wins"], iw["games"], (iw["wins"] / iw["games"]) * 100)
         for (hero_name, iw) in item_winrates.items()
