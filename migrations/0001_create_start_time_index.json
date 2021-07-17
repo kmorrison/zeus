@@ -1,0 +1,9 @@
+{
+    "index": {
+       "fields": [
+          "start_time"
+       ]
+    },
+    "name": "start_time_idx",
+    "type": "json"
+ }

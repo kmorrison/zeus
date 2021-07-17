@@ -1,6 +1,10 @@
+import contextlib
 import cloudant
 import cloudant.database
+from cloudant import couchdb as couch
 from cloudant.query import Query
+
+import opendota
 
 MATCHES_DBNAME = "zeus_matches"
 
@@ -44,6 +48,23 @@ def get_all_parsed_matches_more_recent_than(
     return query
 
 
+def get_all_matches_with_hero_after_start_time(
+    db: cloudant.database.CouchDatabase, start_time, hero_name=None
+):
+
+    hero = opendota.find_hero(hero_name)
+    query_dict = {
+        "selector": {
+            "start_time": {"$gt": start_time},
+        },
+        "sort": ["start_time"],
+    }
+    if hero_name:
+        query_dict["selector"]["players"] = {"$elemMatch": {"hero_id": hero["id"]}}
+    query = db.get_query_result(**query_dict)
+    return query
+
+
 def store_match_to_db(db: cloudant.database.CouchDatabase, match: dict):
     match["_id"] = str(match["match_id"])
     document = db.create_document(match)
@@ -61,3 +82,14 @@ def get_last_match_by_start_time(db):
     result = query.result.all()
     assert len(result) == 1
     return result[0]
+
+
+@contextlib.contextmanager
+def dbcontext(dbname=MATCHES_DBNAME):
+    with couch(
+        "admin",
+        "password",
+        url="http://127.0.0.1:5984",
+    ) as couch_client:
+        yield couch_client[dbname]
+
