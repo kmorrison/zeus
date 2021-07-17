@@ -60,11 +60,6 @@ def process_unparsed_match_queue():
                 continue
             redis_queue.push_payload_for_retry(redis_client, match_payload)
 
-        if redis_queue.is_queue_empty(redis_client):
-            print("Sleeping because queue is empty")
-            time.sleep(10)
-            empty_count += 1
-
         if empty_count > 10:
             break
 

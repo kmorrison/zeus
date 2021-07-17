@@ -56,18 +56,19 @@ def enqueue_delayed(redis_client):
 
     if not item or item[0][1] > time.time():
         time.sleep(0.01)
-        return
+        return False
 
     item = item[0][0]
     identifier, queue, payload = json.loads(item)
 
     with redis_lock(redis_client, identifier) as locked:
         if not locked:
-            return
+            return False
         if redis_client.zrem("delayed:", item):
             # TODO: log debug
             print("queueing job for processing")
             redis_client.rpush(queue, payload)
+            return True
 
 
 def make_queue_payload(match, job_id):
