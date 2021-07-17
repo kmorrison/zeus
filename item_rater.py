@@ -1,4 +1,5 @@
 import argparse
+import math
 
 import tabulate
 
@@ -64,7 +65,7 @@ def normalize_item_winrates_by_cost_and_hero_winrate(hero_table, item_info):
     marginal_winrate = []
     marginal_cost_winrate = []
     for key, game_info in hero_table["items"].items():
-        if game_info.get("games", 0) < 5:
+        if game_info.get("games", 0) < 9:
             continue
         if item_info[key]["cost"] == 0:
             continue
@@ -79,7 +80,7 @@ def normalize_item_winrates_by_cost_and_hero_winrate(hero_table, item_info):
             )
         )
 
-        cost_winrate = winrate / item_info[key]["cost"]
+        cost_winrate = winrate / math.log(item_info[key]["cost"])
         marginal_cost_winrate.append(
             (
                 cost_winrate,
@@ -112,16 +113,17 @@ if __name__ == "__main__":
     )
     print("\n")
 
-    games, winrate, a, b = normalize_item_winrates_by_cost_and_hero_winrate(
-        item_winrates[args.hero],
-        item_info,
-    )
+    if args.hero:
+        games, winrate, a, b = normalize_item_winrates_by_cost_and_hero_winrate(
+            item_winrates[args.hero],
+            item_info,
+        )
 
-    print(f"Hero: {args.hero}")
-    print(f"Overall Winrate: {winrate * 100} over {games} games")
-    print("\n")
-    print(tabulate.tabulate(a, headers=["Marginal Winrate", "Total Games", "Item"]))
-    print("\n")
-    print(
-        tabulate.tabulate(b, headers=["Marginal Cost Winrate", "Total Games", "Item"])
-    )
+        print(f"Hero: {args.hero}")
+        print(f"Overall Winrate: {winrate * 100} over {games} games")
+        print("\n")
+        print(tabulate.tabulate(a, headers=["Marginal Winrate", "Total Games", "Item"]))
+        print("\n")
+        print(
+            tabulate.tabulate(b, headers=["Marginal Cost Winrate", "Total Games", "Item"])
+        )
