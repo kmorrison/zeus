@@ -10,6 +10,7 @@ import opendota
 import parse_requester
 import redis_queue
 
+
 def populate_matches_from_start_time(start_time, num_matches=1000):
     matches_db = couchdb.get_matches_db()
     redis_client = redis_queue.make_redis_client()
@@ -25,7 +26,7 @@ def populate_matches_from_start_time(start_time, num_matches=1000):
         stats["total_matches"] += 1
 
         if str(match_data["match_id"]) in matches_db:
-            stats['already_stored'] += 1
+            stats["already_stored"] += 1
             continue
 
         stats["highwater_mark"] = datetime.datetime.fromtimestamp(
@@ -34,7 +35,7 @@ def populate_matches_from_start_time(start_time, num_matches=1000):
 
         if matchlib.is_fully_parsed(match_data):
             couchdb.store_match_to_db(matches_db, match_data)
-            stats['fully_parsed_stored'] += 1
+            stats["fully_parsed_stored"] += 1
         else:
             parse_requester.request_parse_for_match(
                 match_data,
@@ -45,10 +46,12 @@ def populate_matches_from_start_time(start_time, num_matches=1000):
 
     return stats
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--start", type=str, default="3 hours ago")
     parser.add_argument("--use-highwater-db-time", action="store_true")
+    parser.add_argument("--check-highwater-db-time", action="store_true")
     parser.add_argument("--num-matches", type=int, default=50)
     args = parser.parse_args()
 
@@ -56,9 +59,17 @@ if __name__ == '__main__':
     if args.use_highwater_db_time:
         with couchdb.dbcontext() as db:
             start_time = couchdb.get_last_match_by_start_time(db)
+    if args.check_highwater_db_time:
+        with couchdb.dbcontext() as db:
+            print(
+                datetime.datetime.fromtimestamp(
+                    couchdb.get_last_match_by_start_time(db)["start_time"]
+                )
+            )
+        exit(0)
+
     stats = populate_matches_from_start_time(
         dateparser.parse(args.start).timestamp(),
         num_matches=args.num_matches,
     )
     pprint.pprint(stats)
-
