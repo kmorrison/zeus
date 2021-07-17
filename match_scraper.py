@@ -56,17 +56,15 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     start_time = dateparser.parse(args.start).timestamp()
-    if args.use_highwater_db_time:
-        with couchdb.dbcontext() as db:
-            start_time = couchdb.get_last_match_by_start_time(db)["start_time"]
+    with couchdb.dbcontext() as db:
+        highwater_start_time = couchdb.get_last_match_by_start_time(db)["start_time"]
+    
     if args.check_highwater_db_time:
-        with couchdb.dbcontext() as db:
-            print(
-                datetime.datetime.fromtimestamp(
-                    couchdb.get_last_match_by_start_time(db)["start_time"]
-                )
-            )
+        print(datetime.datetime.fromtimestamp(highwater_start_time))
         exit(0)
+
+    if args.use_highwater_db_time:
+        start_time = highwater_start_time
 
     stats = populate_matches_from_start_time(
         start_time,
