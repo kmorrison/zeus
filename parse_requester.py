@@ -1,5 +1,6 @@
 import argparse
 import datetime
+import json
 import random
 import time
 
@@ -55,7 +56,13 @@ def process_unparsed_match_queue():
                 continue
             if match_payload["num_retries"] > 4:
                 continue
-            redis_queue.push_payload_for_retry(redis_client, match_payload)
+            redis_queue.delay_queue(
+                redis_client,
+                "zeus:parsed_queue",
+                json.dumps(match_payload),
+                delay=120,
+            )
+            time.sleep(0.01)
 
 
 if __name__ == "__main__":

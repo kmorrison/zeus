@@ -14,7 +14,7 @@ def calculate_item_winrates(item_info, start_time, hero_name=None):
     db = couchdb.get_matches_db()
 
     for match in couchdb.get_all_matches_with_hero_after_start_time(
-        db, start_time, hero_name=hero_name
+        db, start_time, hero_names=[hero_name]
     ):
         if not matchlib.is_fully_parsed(match):
             continue
@@ -101,7 +101,7 @@ if __name__ == "__main__":
 
     item_info = opendota.get_item_table()
     item_winrates = calculate_item_winrates(
-        item_info, args.start_time, hero_name=args.hero
+        item_info, args.start_time, hero_name=args.hero,
     )
     hero_winrates = [
         (hero_name, iw["wins"], iw["games"], (iw["wins"] / iw["games"]) * 100)

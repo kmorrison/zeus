@@ -49,18 +49,31 @@ def get_all_parsed_matches_more_recent_than(
 
 
 def get_all_matches_with_hero_after_start_time(
-    db: cloudant.database.CouchDatabase, start_time, hero_name=None
+    db: cloudant.database.CouchDatabase, start_time, hero_names=None
 ):
 
-    hero = opendota.find_hero(hero_name)
+    if hero_names is None:
+        hero_names = []
+    
+    hero_names = [name for name in hero_names if name]
+    heroes = [opendota.find_hero(name) for name in hero_names]
     query_dict = {
         "selector": {
             "start_time": {"$gt": start_time},
         },
         "sort": ["start_time"],
     }
-    if hero_name:
-        query_dict["selector"]["players"] = {"$elemMatch": {"hero_id": hero["id"]}}
+    if heroes:
+        if len(heroes) == 1:
+            query_dict["selector"]["players"] = {
+                "$elemMatch": {"hero_id": heroes[0]["id"]},
+            }
+        else:
+            selector = [
+                {"players": {"$elemMatch": {"hero_id": hero["id"]}}}
+                for hero in heroes
+            ]
+            query_dict["selector"]["$and"] = selector
     query = db.get_query_result(**query_dict)
     return query
 
