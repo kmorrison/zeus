@@ -3,6 +3,7 @@ import cloudant
 import cloudant.database
 from cloudant import couchdb as couch
 from cloudant.query import Query
+import argparse
 
 import opendota
 
@@ -54,7 +55,7 @@ def get_all_matches_with_hero_after_start_time(
 
     if hero_names is None:
         hero_names = []
-    
+
     hero_names = [name for name in hero_names if name]
     heroes = [opendota.find_hero(name) for name in hero_names]
     query_dict = {
@@ -70,8 +71,7 @@ def get_all_matches_with_hero_after_start_time(
             }
         else:
             selector = [
-                {"players": {"$elemMatch": {"hero_id": hero["id"]}}}
-                for hero in heroes
+                {"players": {"$elemMatch": {"hero_id": hero["id"]}}} for hero in heroes
             ]
             query_dict["selector"]["$and"] = selector
     query = db.get_query_result(**query_dict)
@@ -106,3 +106,16 @@ def dbcontext(dbname=MATCHES_DBNAME):
     ) as couch_client:
         yield couch_client[dbname]
 
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--display-stats", action="store_true")
+    args = parser.parse_args()
+
+    if args.display_stats:
+        matches_db = get_matches_db()
+        all_docs = matches_db.all_docs()
+        print(f"Num fully parsed matches: {all_docs['total_rows']}")
+        print(
+            f"Last match start_time {get_last_match_by_start_time(matches_db)['start_time']}"
+        )

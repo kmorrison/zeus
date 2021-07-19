@@ -58,7 +58,7 @@ if __name__ == "__main__":
     start_time = dateparser.parse(args.start).timestamp()
     with couchdb.dbcontext() as db:
         highwater_start_time = couchdb.get_last_match_by_start_time(db)["start_time"]
-    
+
     if args.check_highwater_db_time:
         print(datetime.datetime.fromtimestamp(highwater_start_time))
         exit(0)
