@@ -1,8 +1,6 @@
 import contextlib
 import time
-import local_match_db
 import redis
-import matchlib
 import datetime
 import json
 import uuid
