@@ -4,6 +4,7 @@ import cloudant.database
 from cloudant import couchdb as couch
 from cloudant.query import Query
 import argparse
+import datetime
 
 import opendota
 
@@ -117,5 +118,5 @@ if __name__ == "__main__":
         all_docs = matches_db.all_docs()
         print(f"Num fully parsed matches: {all_docs['total_rows']}")
         print(
-            f"Last match start_time {get_last_match_by_start_time(matches_db)['start_time']}"
+            f"Last match start_time {datetime.datetime.fromtimestamp(get_last_match_by_start_time(matches_db)['start_time'])}"
         )
