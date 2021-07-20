@@ -75,17 +75,3 @@ if __name__ == "__main__":
     if args.process_queue:
         process_unparsed_match_queue()
 
-    # if args.populate_queue:
-    #     db = couchdb.get_matches_db()
-    #     unparsed_matches = local_match_db.get_all_unparsed_matches("moneydb")
-    #     actually_unparsed_matches = [
-    #         match
-    #         for match in unparsed_matches
-    #         if not couchdb.match_exists_in_db(db, match["match_id"])
-    #     ]
-    #     matches_to_parse = actually_unparsed_matches[: args.max_matches_to_queue]
-
-    #     request_parsing_for_unparsed_matches(
-    #         matches_to_parse,
-    #         delay=60,  # Seconds
-    #     )
