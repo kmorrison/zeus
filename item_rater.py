@@ -101,7 +101,9 @@ if __name__ == "__main__":
 
     item_info = opendota.get_item_table()
     item_winrates = calculate_item_winrates(
-        item_info, args.start_time, hero_name=args.hero,
+        item_info,
+        args.start_time,
+        hero_name=args.hero,
     )
     hero_winrates = [
         (hero_name, iw["wins"], iw["games"], (iw["wins"] / iw["games"]) * 100)
@@ -125,5 +127,7 @@ if __name__ == "__main__":
         print(tabulate.tabulate(a, headers=["Marginal Winrate", "Total Games", "Item"]))
         print("\n")
         print(
-            tabulate.tabulate(b, headers=["Marginal Cost Winrate", "Total Games", "Item"])
+            tabulate.tabulate(
+                b, headers=["Marginal Cost Winrate", "Total Games", "Item"]
+            )
         )
