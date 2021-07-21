@@ -69,12 +69,18 @@ def normalize_item_winrates_by_cost_and_hero_winrate(
             continue
 
         winrate = (game_info.get("wins", 0) / game_info.get("games", 1)) - hero_winrate
+        actual_winrate = game_info.get("wins", 0) / game_info.get("games", 1)
+
+        standard_deviation = math.sqrt(
+            actual_winrate * (1 - actual_winrate) / game_info.get("games", 1)
+        )
 
         marginal_winrate.append(
             (
                 winrate,
                 game_info.get("games"),
                 item_info[key]["dname"],
+                standard_deviation,
             )
         )
 
@@ -134,7 +140,17 @@ if __name__ == "__main__":
         print(f"Hero: {args.hero}")
         print(f"Overall Winrate: {winrate * 100} over {games} games")
         print("\n")
-        print(tabulate.tabulate(a, headers=["Marginal Winrate", "Total Games", "Item"]))
+        print(
+            tabulate.tabulate(
+                a,
+                headers=[
+                    "Marginal Winrate",
+                    "Total Games",
+                    "Standard deviation",
+                    "Item",
+                ],
+            )
+        )
         print("\n")
         print(
             tabulate.tabulate(
@@ -155,6 +171,12 @@ if __name__ == "__main__":
         print(
             tabulate.tabulate(
                 a_list[: args.num_hero_item_pairs],
-                headers=["Marginal Winrate", "Total Games", "Item", "Hero"],
+                headers=[
+                    "Marginal Winrate",
+                    "Total Games",
+                    "Item",
+                    "Standard deviation",
+                    "Hero",
+                ],
             )
         )
