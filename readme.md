@@ -1,26 +1,7 @@
 # Project **Zeus**
 
-Contents:
-
-* [Overview](#Overview)
-  * [Goals](#Goals)
-  * [Requirements](#Requirements)
-  * [Status](#status)
-  * [Team](#Team)
-* [Notes](#notes)
-
 ## Overview: 
-Analyze Dota 2 via Stats
+CouchDB and stats tools for Dota 2
 
-### Goals: 
-    *TBH 
+Currently in development
 
-### Requirements:
-    *OpenDota API 
-
-### Team:
-    *Fspoon 
-    *Kden
-    *JJ
-    *Schlesh 
-## Notes

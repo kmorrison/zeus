@@ -74,4 +74,3 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if args.process_queue:
         process_unparsed_match_queue()
-
