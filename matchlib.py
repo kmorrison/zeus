@@ -11,6 +11,40 @@ DEFAULT_QUERY_PAGE_SIZE = 100
 
 HEROES = opendota.load_hero_list()
 
+towers_we_care_about = {
+    "npc_dota_goodguys_tower1_bot": 0,
+    "npc_dota_goodguys_tower1_mid": 1,
+    "npc_dota_goodguys_tower1_top": 2,
+    "npc_dota_badguys_tower1_bot": 3,
+    "npc_dota_badguys_tower1_mid": 4,
+    "npc_dota_badguys_tower1_top": 5,
+    "npc_dota_goodguys_tower2_bot": 0,
+    "npc_dota_goodguys_tower2_mid": 1,
+    "npc_dota_goodguys_tower2_top": 2,
+    "npc_dota_badguys_tower2_bot": 3,
+    "npc_dota_badguys_tower2_mid": 4,
+    "npc_dota_badguys_tower2_top": 5,
+    "npc_dota_goodguys_tower3_bot": 0,
+    "npc_dota_goodguys_tower3_mid": 1,
+    "npc_dota_goodguys_tower3_top": 2,
+    "npc_dota_badguys_tower3_bot": 3,
+    "npc_dota_badguys_tower3_mid": 4,
+    "npc_dota_badguys_tower3_top": 5,
+}
+
+roshan = ["CHAT_MESSAGE_ROSHAN_KILL", "CHAT_MESSAGE_AEGIS"]
+
+
+def extract_objectives_dict_from_match(match_data):
+    objectives_dict = match_data["objectives"]
+
+    return [
+        objective
+        for objective in objectives_dict
+        if objective["type"] in roshan
+        or objective.get("key", "") in towers_we_care_about
+    ]
+
 
 def extract_item_purchases_from_player_data(player_data):
     hero = opendota.find_hero_by_id(player_data["hero_id"])
