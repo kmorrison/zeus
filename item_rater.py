@@ -164,18 +164,19 @@ if __name__ == "__main__":
             games, winrate, a, b = normalize_item_winrates_by_cost_and_hero_winrate(
                 item_winrates[hero_name], item_info, args.min_num_games
             )
-            a_with_hero_name = [(*item, hero_name) for item in a]
+            a_with_hero_name = [(winrate, *item, hero_name) for item in a]
             a_list.extend(a_with_hero_name)
 
-        a_list.sort(key=lambda x: x[0], reverse=True)
+        a_list.sort(key=lambda x: x[1], reverse=True)
         print(
             tabulate.tabulate(
                 a_list[: args.num_hero_item_pairs],
                 headers=[
+                    "Hero Winrate",
                     "Marginal Winrate",
                     "Total Games",
                     "Item",
-                    "Standard deviation",
+                    "MW Standard Deviation",
                     "Hero",
                 ],
             )
