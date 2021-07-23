@@ -7,9 +7,6 @@ import opendota
 import more_itertools
 
 
-# tower_configuration = [[radiant_top_tower_count, radiant_mid_tower_count, radiant_bot_tower_count], [dire_top_tower_count, dire_mid_tower_count, dire_bot_tower_count]]
-
-
 def is_valid_tower_configuration(tower_configuration):
     pass
 
@@ -18,12 +15,7 @@ def calculate_gpm_advantage_for_all_tower_configurations(
     full_match_data, tower_configuration, db
 ):
     """Calculate the GPM advantage for each tower configuration"""
-    # gold_adv_per_min = []
-    # for i, radiant_adv in enumerate(full_match_data["radiant_gold_adv"]):
-    #     if i == 0:
-    #         gold_adv_per_min.append(radiant_adv / 1)
-    #     else:
-    #         gold_adv_per_min.append(radiant_adv / i)
+
     matches = couchdb.get_all_parsed_matches_more_recent_than(db, 0)
 
     for match in matches:
@@ -55,6 +47,7 @@ def calculate_gpm_advantage_for_all_tower_configurations(
                 else:
                     gpm_advantage += match["radiant_gold_adv"] / i
             gpm_advantages.append(gpm_advantage)
+            
             """TODO: return the gpm advantages in some way that makes sense, 
             probably sticking them onto the match's tower_configurations_with_times 
             list maybe could make sense idk"""
