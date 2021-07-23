@@ -8,6 +8,8 @@ import more_itertools
 
 
 def is_valid_tower_configuration(tower_configuration):
+    """Syntax arg checker for when we eventually wanna pass in tower configurations
+    to the script as a user"""
     pass
 
 
