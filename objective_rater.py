@@ -58,6 +58,9 @@ def calculate_gpm_advantage_for_all_tower_configurations(
             """TODO: return the gpm advantages in some way that makes sense, 
             probably sticking them onto the match's tower_configurations_with_times 
             list maybe could make sense idk"""
+            """TODO: probably collapse all of the tower_configurations_with_times
+            into some sort of master list of all the tower configurations with the global
+            average gpm appended onto them"""
 
 
 def calculate_tower_winrate(db_query):
