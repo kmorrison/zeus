@@ -27,6 +27,7 @@ def calculate_gpm_advantage_for_all_tower_configurations(
     matches = couchdb.get_all_parsed_matches_more_recent_than(db, 0)
 
     for match in matches:
+        # for each match, get the tower configurations with times
         tower_configurations_with_times = []
         match_tower_configuration = [3, 3, 3, 3, 3, 3]
         tower_configurations_with_times.append((match_tower_configuration, 0))
@@ -40,16 +41,23 @@ def calculate_gpm_advantage_for_all_tower_configurations(
                 )
 
         for conf1, conf2 in more_itertools.pairwise(tower_configurations_with_times):
-            gold_adv_per_min = []
+            # for each pair of tower configurations, calculate the time bucket
+            minute_begin = conf1["time"]
+            minute_end = conf2["time"]
 
-
-def find_time_bucket_for_tower_taken(tower_configurations_with_times):
-    minute_array = []
-    for tower_configuration in tower_configurations_with_times:
-        seconds = tower_configuration["time"]
-        minute = seconds / 60
-        minute_array.append(minute)
-    return minute_array
+            """for each pair of tower configurations, 
+            calculate the gpm advantage from minute_begin to minute_end"""
+            gpm_advantage = 0
+            gpm_advantages = []
+            for i in range(minute_begin, minute_end):
+                if i == 0:
+                    gpm_advantage += match["radiant_gold_adv"] / 1
+                else:
+                    gpm_advantage += match["radiant_gold_adv"] / i
+            gpm_advantages.append(gpm_advantage)
+            """TODO: return the gpm advantages in some way that makes sense, 
+            probably sticking them onto the match's tower_configurations_with_times 
+            list maybe could make sense idk"""
 
 
 def calculate_tower_winrate(db_query):
