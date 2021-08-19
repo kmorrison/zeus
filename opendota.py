@@ -1,11 +1,26 @@
 import requests
 import json
+import json.decoder
 import secret
+import time
+import functools
 
 
 API_ROOT = "https://api.opendota.com/api"
 
 # get/find matches
+
+
+def opendota_retry(func):
+    @functools.wraps(func)
+    def with_retry(*args, **kwargs):
+        for _ in range(3):
+            try:
+                resp = func(*args, **kwargs)
+                return resp
+            except json.decoder.JSONDecodeError:
+                time.sleep(10)
+    return with_retry
 
 
 def request_parse(match_id):
@@ -39,6 +54,7 @@ def get_hero_list():
     return response.json()
 
 
+@opendota_retry
 def get_match_by_id(match_id):
     response = requests.get(
         f"{API_ROOT}/matches/{match_id}",
@@ -57,6 +73,7 @@ def get_item_table():
     return response.json()
 
 
+@opendota_retry
 def get_heroes_table():
     response = requests.get(
         f"{API_ROOT}/constants/heroes",
@@ -67,6 +84,7 @@ def get_heroes_table():
     return response.json()
 
 
+@opendota_retry
 def query_explorer(query):
     response = requests.get(
         f"{API_ROOT}/explorer",
@@ -78,6 +96,7 @@ def query_explorer(query):
     return response.json()
 
 
+@opendota_retry
 def parsed_matches(last_match_id=None):
     params = dict(
         api_key=secret.OPENDOTA_API_KEY,

@@ -1,6 +1,7 @@
 import argparse
 import math
 
+import dateparser
 import tabulate
 
 import couchdb
@@ -100,17 +101,18 @@ def normalize_item_winrates_by_cost_and_hero_winrate(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--hero", type=str, default="")
-    parser.add_argument("--start-time", type=int, default=0)
+    parser.add_argument("--start-time", type=str, default='Jan 1 2020')
     parser.add_argument("--all-heroes", action="store_true")
     parser.add_argument("--min-num-games", type=int, default=30)
     parser.add_argument("--num-hero-item-pairs", type=int, default=100)
     args = parser.parse_args()
 
     db = couchdb.get_matches_db()
+    start_time = dateparser.parse(args.start_time).timestamp()
     dbquery = couchdb.get_all_matches_with_hero_after_start_time(
         db,
-        args.start_time,
-        args.hero,
+        start_time,
+        [args.hero],
     )
 
     item_info = opendota.get_item_table()
@@ -146,15 +148,19 @@ if __name__ == "__main__":
                 headers=[
                     "Marginal Winrate",
                     "Total Games",
-                    "Standard deviation",
                     "Item",
+                    "Standard deviation",
                 ],
             )
         )
         print("\n")
         print(
             tabulate.tabulate(
-                b, headers=["Marginal Cost Winrate", "Total Games", "Item"]
+                b, headers=[
+                    "Marginal Cost Winrate", 
+                    "Total Games", 
+                    "Item",
+                ]
             )
         )
 
