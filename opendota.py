@@ -23,6 +23,7 @@ def opendota_retry(func):
     return with_retry
 
 
+@opendota_retry
 def request_parse(match_id):
     response = requests.post(
         f"{API_ROOT}/request/{match_id}",
