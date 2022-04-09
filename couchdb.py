@@ -5,6 +5,7 @@ from cloudant import couchdb as couch
 from cloudant.query import Query
 import argparse
 import datetime
+import dateparser
 
 import opendota
 
@@ -97,6 +98,13 @@ def get_last_match_by_start_time(db):
     assert len(result) == 1
     return result[0]
 
+def get_num_matches_since_time(db, time):
+    selector={"start_time": {"$gt": time}}
+    res = db.get_query_result(selector)
+    print(time)
+
+    return len([_ for _ in res])
+
 
 @contextlib.contextmanager
 def dbcontext(dbname=MATCHES_DBNAME):
@@ -111,12 +119,17 @@ def dbcontext(dbname=MATCHES_DBNAME):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--display-stats", action="store_true")
+    parser.add_argument("--start", type=str, default="")
     args = parser.parse_args()
+    start_time = dateparser.parse(args.start).timestamp()
 
     if args.display_stats:
         matches_db = get_matches_db()
-        all_docs = matches_db.all_docs()
-        print(f"Num fully parsed matches: {all_docs['total_rows']}")
+        if not args.start:
+            all_docs = matches_db.all_docs()
+            print(f"Num fully parsed matches: {all_docs['total_rows']}")
+        else:
+            print(f"Num matches since input-time: {get_num_matches_since_time(matches_db, start_time)}")
         print(
             f"Last match start_time {datetime.datetime.fromtimestamp(get_last_match_by_start_time(matches_db)['start_time'])}"
         )

@@ -66,6 +66,8 @@ if __name__ == "__main__":
     if args.use_highwater_db_time:
         start_time = highwater_start_time
 
+    print(f'Fetching {args.num_matches} matches from time {datetime.datetime.fromtimestamp(start_time)}')
+
     stats = populate_matches_from_start_time(
         start_time,
         num_matches=args.num_matches,

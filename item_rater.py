@@ -80,7 +80,7 @@ def normalize_item_winrates_by_cost_and_hero_winrate(
             (
                 winrate,
                 game_info.get("games"),
-                item_info[key]["dname"],
+                item_info[key].get('dname', item_info[key].get('img')),
                 standard_deviation,
             )
         )
@@ -90,7 +90,7 @@ def normalize_item_winrates_by_cost_and_hero_winrate(
             (
                 cost_winrate,
                 game_info.get("games"),
-                item_info[key]["dname"],
+                item_info[key].get('dname', item_info[key].get('img')),
             )
         )
     marginal_winrate.sort(reverse=True)
