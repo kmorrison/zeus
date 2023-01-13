@@ -163,6 +163,8 @@ def iterate_matches(date_string, limit=200, page_size=DEFAULT_QUERY_PAGE_SIZE):
 
 
 def is_fully_parsed(match):
+    if "players" not in match:
+        return False
     return bool(match["players"][0].get("purchase_log", None))
 
 

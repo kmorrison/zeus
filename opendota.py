@@ -31,6 +31,16 @@ def request_parse(match_id):
     )
     return response.json()
 
+def check_job(job_id):
+    response = requests.get(
+        f"{API_ROOT}/request/{job_id}",
+        params=dict(api_key=secret.OPENDOTA_API_KEY),
+    )
+    return response
+
+def all_heroes():
+    return load_hero_list().values()
+
 
 def find_hero(heroname):
     for hero in load_hero_list().values():
@@ -42,6 +52,10 @@ def find_hero(heroname):
 
 def find_hero_by_id(hero_id):
     return load_hero_list().get(str(hero_id))
+
+
+def find_hero_name_by_id(hero_id):
+    return load_hero_list().get(str(hero_id))["localized_name"]
 
 
 def get_hero_id(heroname):
@@ -78,6 +92,36 @@ def get_item_table():
 def get_heroes_table():
     response = requests.get(
         f"{API_ROOT}/constants/heroes",
+        params=dict(
+            api_key=secret.OPENDOTA_API_KEY,
+        ),
+    )
+    return response.json()
+
+@opendota_retry
+def get_abilities():
+    response = requests.get(
+        f"{API_ROOT}/constants/abilities",
+        params=dict(
+            api_key=secret.OPENDOTA_API_KEY,
+        ),
+    )
+    return response.json()
+
+@opendota_retry
+def get_ability_ids():
+    response = requests.get(
+        f"{API_ROOT}/constants/ability_ids",
+        params=dict(
+            api_key=secret.OPENDOTA_API_KEY,
+        ),
+    )
+    return response.json()
+
+@opendota_retry
+def get_matchups(hero_id):
+    response = requests.get(
+        f"{API_ROOT}/heroes/{hero_id}/matchups",
         params=dict(
             api_key=secret.OPENDOTA_API_KEY,
         ),

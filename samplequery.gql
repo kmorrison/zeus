@@ -1,0 +1,284 @@
+query {
+  heroStats{
+
+    hero1: matchUp(heroId: 1, take: 137){
+      with {
+        heroId1
+        heroId2
+        week
+        bracketBasicIds
+        matchCount
+        count
+        synergy
+        winRateHeroId1
+        winRateHeroId2
+        winsAverage
+      },
+      vs {
+        heroId1
+        heroId2
+        week
+        bracketBasicIds
+        matchCount
+        count
+        synergy
+        winRateHeroId1
+        winRateHeroId2
+        winsAverage
+      },
+    },
+
+
+    hero2: matchUp(heroId: 2, take: 137){
+      with {
+        heroId1
+        heroId2
+        week
+        bracketBasicIds
+        matchCount
+        count
+        synergy
+        winRateHeroId1
+        winRateHeroId2
+        winsAverage
+      },
+      vs {
+        heroId1
+        heroId2
+        week
+        bracketBasicIds
+        matchCount
+        count
+        synergy
+        winRateHeroId1
+        winRateHeroId2
+        winsAverage
+      },
+    },
+
+
+    hero3: matchUp(heroId: 3, take: 137){
+      with {
+        heroId1
+        heroId2
+        week
+        bracketBasicIds
+        matchCount
+        count
+        synergy
+        winRateHeroId1
+        winRateHeroId2
+        winsAverage
+      },
+      vs {
+        heroId1
+        heroId2
+        week
+        bracketBasicIds
+        matchCount
+        count
+        synergy
+        winRateHeroId1
+        winRateHeroId2
+        winsAverage
+      },
+    },
+
+
+    hero4: matchUp(heroId: 4, take: 137){
+      with {
+        heroId1
+        heroId2
+        week
+        bracketBasicIds
+        matchCount
+        count
+        synergy
+        winRateHeroId1
+        winRateHeroId2
+        winsAverage
+      },
+      vs {
+        heroId1
+        heroId2
+        week
+        bracketBasicIds
+        matchCount
+        count
+        synergy
+        winRateHeroId1
+        winRateHeroId2
+        winsAverage
+      },
+    },
+
+
+    hero5: matchUp(heroId: 5, take: 137){
+      with {
+        heroId1
+        heroId2
+        week
+        bracketBasicIds
+        matchCount
+        count
+        synergy
+        winRateHeroId1
+        winRateHeroId2
+        winsAverage
+      },
+      vs {
+        heroId1
+        heroId2
+        week
+        bracketBasicIds
+        matchCount
+        count
+        synergy
+        winRateHeroId1
+        winRateHeroId2
+        winsAverage
+      },
+    },
+
+
+    hero6: matchUp(heroId: 6, take: 137){
+      with {
+        heroId1
+        heroId2
+        week
+        bracketBasicIds
+        matchCount
+        count
+        synergy
+        winRateHeroId1
+        winRateHeroId2
+        winsAverage
+      },
+      vs {
+        heroId1
+        heroId2
+        week
+        bracketBasicIds
+        matchCount
+        count
+        synergy
+        winRateHeroId1
+        winRateHeroId2
+        winsAverage
+      },
+    },
+
+
+    hero7: matchUp(heroId: 7, take: 137){
+      with {
+        heroId1
+        heroId2
+        week
+        bracketBasicIds
+        matchCount
+        count
+        synergy
+        winRateHeroId1
+        winRateHeroId2
+        winsAverage
+      },
+      vs {
+        heroId1
+        heroId2
+        week
+        bracketBasicIds
+        matchCount
+        count
+        synergy
+        winRateHeroId1
+        winRateHeroId2
+        winsAverage
+      },
+    },
+
+
+    hero8: matchUp(heroId: 8, take: 137){
+      with {
+        heroId1
+        heroId2
+        week
+        bracketBasicIds
+        matchCount
+        count
+        synergy
+        winRateHeroId1
+        winRateHeroId2
+        winsAverage
+      },
+      vs {
+        heroId1
+        heroId2
+        week
+        bracketBasicIds
+        matchCount
+        count
+        synergy
+        winRateHeroId1
+        winRateHeroId2
+        winsAverage
+      },
+    },
+
+
+    hero9: matchUp(heroId: 9, take: 137){
+      with {
+        heroId1
+        heroId2
+        week
+        bracketBasicIds
+        matchCount
+        count
+        synergy
+        winRateHeroId1
+        winRateHeroId2
+        winsAverage
+      },
+      vs {
+        heroId1
+        heroId2
+        week
+        bracketBasicIds
+        matchCount
+        count
+        synergy
+        winRateHeroId1
+        winRateHeroId2
+        winsAverage
+      },
+    },
+
+
+    hero10: matchUp(heroId: 10, take: 137){
+      with {
+        heroId1
+        heroId2
+        week
+        bracketBasicIds
+        matchCount
+        count
+        synergy
+        winRateHeroId1
+        winRateHeroId2
+        winsAverage
+      },
+      vs {
+        heroId1
+        heroId2
+        week
+        bracketBasicIds
+        matchCount
+        count
+        synergy
+        winRateHeroId1
+        winRateHeroId2
+        winsAverage
+      },
+    },
+
+  }
+}

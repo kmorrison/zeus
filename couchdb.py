@@ -52,30 +52,39 @@ def get_all_parsed_matches_more_recent_than(
 
 
 def get_all_matches_with_hero_after_start_time(
-    db: cloudant.database.CouchDatabase, start_time, hero_names=None
+    db: cloudant.database.CouchDatabase, start_time, hero_names=None, potential_hero_names=None
 ):
 
     if hero_names is None:
         hero_names = []
+    if potential_hero_names is None:
+        potential_hero_names = []
 
     hero_names = [name for name in hero_names if name]
+    potential_hero_names = [name for name in potential_hero_names if name]
     heroes = [opendota.find_hero(name) for name in hero_names]
+    potential_heroes = [opendota.find_hero(name) for name in potential_hero_names]
     query_dict = {
         "selector": {
             "start_time": {"$gt": start_time},
         },
         "sort": ["start_time"],
     }
-    if heroes:
-        if len(heroes) == 1:
-            query_dict["selector"]["players"] = {
-                "$elemMatch": {"hero_id": heroes[0]["id"]},
-            }
-        else:
-            selector = [
-                {"players": {"$elemMatch": {"hero_id": hero["id"]}}} for hero in heroes
-            ]
+    if len(heroes) + len(potential_heroes) == 1:
+        query_dict["selector"]["players"] = {
+            "$elemMatch": {"hero_id": heroes[0]["id"]},
+        }
+    elif heroes or potential_heroes:
+        selector = [
+            {"players": {"$elemMatch": {"hero_id": hero["id"]}}} for hero in heroes
+        ]
+        if selector:
             query_dict["selector"]["$and"] = selector
+        selector = [
+            {"players": {"$elemMatch": {"hero_id": hero["id"]}}} for hero in potential_heroes
+        ]
+        if selector:
+            query_dict["selector"]["$or"] = selector
     query = db.get_query_result(**query_dict)
     return query
 
