@@ -422,25 +422,44 @@ def query_players(player_ids):
     """
     # Define the GraphQL query
     player_query = """
-    query ($playerIds: [Long!]!) {
-      players(steamAccountIds: $playerIds) {
-        steamAccountId
-        matchCount
+query ($playerId: Long!) {
+  player(steamAccountId: $playerId) {
+    steamAccountId
+    matchCount
+    winCount
+    lastMatchDate
+    activity {
+      activity
+    }
+    simpleSummary {
+      matchCount
+      heroes {
+        heroId
         winCount
-        lastMatchDate
-        activity {
-            activity
-        }
-        simpleSummary {
-          matchCount
-          heroes {
-            heroId
-            winCount
-            lossCount
-          }
-        }
+        lossCount
       }
     }
+    matches(request: {take: 20, isStats: true, playerList: SINGLE}){
+      players {
+        steamAccountId
+        matchId
+        heroId
+        hero {
+          id
+          name
+          shortName
+          gameVersionId
+          facets {
+            abilityId
+            facetId
+          }
+        }
+        lane
+        imp
+      }
+    }
+  }
+}
     """
 
     results = []
