@@ -1,17 +1,23 @@
-import secret
 import json
 import copy
-import math
-import requests
 import itertools
-import opendota
 import time
-import more_itertools
 import pickle
-from tabulate import tabulate
-from bs4 import BeautifulSoup
+import hashlib
+import os
+import functools
+from pprint import pprint
 
+import more_itertools
+import requests
+from bs4 import BeautifulSoup
+from tabulate import tabulate
+
+import opendota
+import secret
+from ad2l import scrape_team
 from fuzzy_hero_names import match
+
 
 url = "https://api.stratz.com/graphql"
 hero_stats_query = """    {}: matchUp(heroId: {}, bracketBasicIds: DIVINE_IMMORTAL, take: 137, matchLimit: 200){{
@@ -49,15 +55,39 @@ query {{
 }}
 """
 
+def cached(func):
+    """
+    Decorator to cache function output to a JSON file based on function name and md5 of input args.
+    """
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        # Build cache key
+        key_str = func.__name__ + repr((args, kwargs))
+        key_hash = hashlib.md5(key_str.encode('utf-8')).hexdigest()
+        filename = f"query_cache/{func.__name__}_{key_hash}.json"
+
+        if os.path.exists(filename):
+            with open(filename, 'r') as f:
+                return json.load(f)
+        result = func(*args, **kwargs)
+        with open(filename, 'w') as f:
+            json.dump(result, f)
+        return result
+    return wrapper
+
 HERO_MATHCUPS_FILENAME = "hero_matchups.json"
 
 def weeks_since_jan_1_1970(weeks_ago=0):
     # Calculate the number of weeks since January 1, 1970
     epoch = time.mktime(time.strptime("1970-01-01", "%Y-%m-%d"))
     now = time.time()
-    if weeks_ago:
-        now = now - (weeks_ago * 7 * 24 * 60 * 60)  # Subtract weeks_ago in seconds
+    now = now - (weeks_ago * 7 * 24 * 60 * 60)  # Subtract weeks_ago in seconds
     return int((now - epoch) / (7 * 24 * 60 * 60))  # Convert seconds to weeks
+
+def now_minus_weeks(weeks_ago=0):
+    # Calculate the current time minus a number of weeks
+    now = time.time()
+    return int(now - (weeks_ago * 7 * 24 * 60 * 60))
 
 
 def do_query(query):
@@ -410,6 +440,7 @@ def calculate_global_winrates(full_versus_matrix):
         global_winrates[hero_id] = (total_wins / total_matches) * 100 if total_matches > 0 else 0
     return global_winrates
 
+@cached
 def query_players(player_ids):
     """
     Queries the Stratz API for player information based on a list of player IDs.
@@ -439,7 +470,8 @@ query ($playerId: Long!) {
         lossCount
       }
     }
-    matches(request: {take: 20, isStats: true, playerList: SINGLE}){
+    matches(request: {take: 25, playerList: SINGLE}){
+      statsDateTime
       players {
         steamAccountId
         matchId
@@ -449,10 +481,6 @@ query ($playerId: Long!) {
           name
           shortName
           gameVersionId
-          facets {
-            abilityId
-            facetId
-          }
         }
         lane
         imp
@@ -464,9 +492,9 @@ query ($playerId: Long!) {
 
     results = []
 
-    for player_chunk in more_itertools.chunked(player_ids, 5):
+    for player_id in player_ids:
         # Prepare the variables for the query
-        variables = {"playerIds": player_chunk}
+        variables = {"playerId": player_id}
 
         # Make the request to the Stratz API
         headers = {"Authorization": f"Bearer {secret.STRATZ_API_KEY}", "User-Agent": "STRATZ_API"}
@@ -480,23 +508,77 @@ query ($playerId: Long!) {
         if "errors" in data:
             raise Exception(f"GraphQL query returned errors: {data['errors']}")
 
-        results.extend(data["data"]["players"])
-        time.sleep(0.1)
+        results.append(data["data"]["player"])
+        time.sleep(0.2)
 
     return results
 
-def print_report(heroes):
+def print_report(heroes, their_heroes):
     # Build the full versus matrix
     full_versus_matrix = get_versus_matrix(heroes)
 
     # Calculate global winrates
     global_winrates = calculate_global_winrates(full_versus_matrix)
 
+    # If, for certain heroes, the number of matches is below a threshold, let's go back to stratz and add the previous week's matches
+    supplemental_heroes = [hero for hero in heroes if sum(hero2["matchCount"] for hero2 in full_versus_matrix[hero['id']].values()) < 5000]
+
     # Build the draft preparation matrix
-    draft_prep_matrix = get_draft_prep_matrix(heroes)
+    draft_prep_matrix = get_draft_prep_matrix_nxm(heroes, their_heroes)
 
     # Print the matrix in tabular format with winrates
-    print_draft_prep_matrix_with_winrates(heroes, heroes, draft_prep_matrix, global_winrates)
+    print_draft_prep_matrix_with_winrates(heroes, their_heroes, draft_prep_matrix, global_winrates)
+
+def count_recent_heroes_per_player(player_infos, months=3):
+    """
+    Counts the number of times each hero appears in recent games per player.
+
+    Args:
+        player_infos (list): List of player info dicts as returned by query_players.
+        months (int): Number of months to look back for games (default: 3).
+
+    Returns:
+        dict: {player_id: {hero_name: count, ...}, ...}
+    """
+    from datetime import datetime, timedelta
+
+    now = datetime.now()
+    cutoff = now - timedelta(days=30 * months)
+    result = {}
+
+    for player in player_infos:
+        player_id = player.get("steamAccountId")
+        hero_counts = {}
+        matches = player.get("matches", [])
+        for match in matches:
+            # Parse match date if available, otherwise skip
+            match_time = match.get("match", {}).get("statsDateTime")
+            if match_time:
+                # Assume match_time is in ISO format or epoch seconds
+                try:
+                    # Try ISO format first
+                    match_dt = datetime.fromisoformat(match_time)
+                except Exception:
+                    # Try epoch seconds
+                    try:
+                        match_dt = datetime.utcfromtimestamp(int(match_time))
+                    except Exception:
+                        continue
+                if match_dt < cutoff:
+                    continue
+            # If no date, include (or skip if you want strictness)
+            player_match_info = match.get("players", [])
+            if not player_match_info:
+                continue
+            player_match_info = player_match_info[0]
+
+            hero = player_match_info.get("hero", {})
+            hero_id = int(hero.get("heroId"))
+            if hero_id:
+                hero_counts[hero_id] = hero_counts.get(hero_id, 0) + 1
+        result[player_id] = hero_counts
+
+    return result
 
 if __name__ == '__main__':
     heroes = [
@@ -505,24 +587,51 @@ if __name__ == '__main__':
         match("pango"),
         match("AA"),
         match("Kunkka"),
+
         match("Jakiro"),
         match("Bristle"),
         match("DK"),
-        match("NP"),
         match("TA"),
         match("Silencer"),
+
         match("MK"),
+        match("Shadow Shaman"),
         match("Medusa"),
+        match("Disruptor"),
     ]
 
-    from ad2l import scrape_team
+    their_heroes = [
+        match("Omniknight"),
+        match("Bristleback"),
+        match("AA"),
+        match("Tiny"),
+        match("Ember Spirit"),
 
+        match("Templar Assassin"),
+        match("Terrorblade"),
+        match("Shadow Shaman"),
+        match("Beastmaster"),
+        match("Timbersaw"),
+
+        match("Drow Ranger"),
+        match("Morphling"),
+
+    ]
+
+    """
     player_ids = []
-    for player_name, stratz_ids in scrape_team(14783).items():
+
+    player_mappings = scrape_team(14783)
+    for player_name, stratz_ids in player_mappings.items():
         player_ids.extend(stratz_ids)
+
+    # TODO: Use the stratz teams API to also find regular standins
 
     player_ids = [int(player_id) for player_id in player_ids]
 
     print(player_ids, type(player_ids[0]))
-    from pprint import pprint
-    pprint(query_players(player_ids))
+    player_infos = query_players(player_ids[:2])
+    pprint(count_recent_heroes_per_player(player_infos, months=3))
+    """
+
+    print_report(heroes, their_heroes)
